@@ -8,8 +8,6 @@ if __name__ == '__main__':
     rec = ZoomRecorder(os.environ["ZOOM_URL"])
     try:
         rec.record()
-
         time.sleep(30)
-
     finally:
         rec.stop()
