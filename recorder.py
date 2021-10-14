@@ -51,6 +51,8 @@ class ZoomClient:
         self.wait_for_loading_screen()
         self.join_audio()
         self.mute()
+        self.move_mouse_to_center()
+        self.driver.fullscreen_window()
 
     def mute(self):
         mute_button = self.driver.find_element_by_xpath(
@@ -110,6 +112,11 @@ class ZoomClient:
     def stop(self):
         self.driver.quit()
 
+    def move_mouse_to_center(self):
+        webdriver.ActionChains(self.driver)\
+            .move_by_offset(400, -300)\
+            .perform()
+
 
 class ZoomRecorder:
     def __init__(self, url):
@@ -121,8 +128,8 @@ class ZoomRecorder:
         set_sink()
         self.zoomClient = ZoomClient(url)
 
-    def record(self):
-        self.__start_ffmpeg()
+    def record(self, filename):
+        self.__start_ffmpeg(filename)
         self.zoomClient.join_meeting()
 
     def stop(self):
@@ -130,7 +137,7 @@ class ZoomRecorder:
         self.__stop_ffmpeg()
         self.__stop_xvfb()
 
-    def __start_ffmpeg(self):
+    def __start_ffmpeg(self, filename):
         self.ffmepg = subprocess.Popen([
             "ffmpeg",
             "-video_size", f'{WIDTH}x{HEIGHT}',
@@ -140,9 +147,12 @@ class ZoomRecorder:
             "-f", "alsa",
             "-ac", "2",
             "-i", "default",
+            "-crf", "0",
+            "-preset", "ultrafast",
+            "-c:v", "libx264",
             "-y",
-            "output.mp4"
-        ], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            filename
+        ], stdin=subprocess.PIPE)
 
     def __start_xvfb(self):
         self.xvfb = subprocess.Popen(["Xvfb", DISPLAY, "-screen", "0", f"{WIDTH}x{HEIGHT}x24"], stdout=subprocess.PIPE)
