@@ -7,7 +7,7 @@ from recorder import ZoomRecorder
 if __name__ == '__main__':
     rec = ZoomRecorder(os.environ["ZOOM_URL"])
     try:
-        rec.record("output.mp4")
+        rec.record("output.mkv")
         time.sleep(30)
     finally:
         rec.stop()
